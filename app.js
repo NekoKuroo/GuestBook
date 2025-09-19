@@ -12,8 +12,8 @@ const noteForm = document.getElementById('noteForm');
           <h3>${note.title}</h3>
           <p>${note.content}</p>
           <div class="note-actions">
-            <button class="edit" onclick="editNote(${index})">Edit</button>
-            <button class="delete" onclick="deleteNote(${index})">Hapus</button>
+            <button class="edit" data-index="${index}">Edit</button>
+            <button class="delete" data-index="${index}">Hapus</button>
           </div>
         `;
         notesList.appendChild(noteCard);
@@ -31,7 +31,18 @@ const noteForm = document.getElementById('noteForm');
         renderNotes();
         noteForm.reset();
       }
-    });
+      
+    notesList.addEventListener('click', function (e) { 
+      if (e.target.classList.contains('delete')) {
+        const index = e.target.dataset.index;
+        deleteNote(index);;
+      }
+      if (e.target.classList.contains('edit')) {
+        const index = e.target.dataset.index;
+        editNote(index);
+      }
+    });  
+  });
 
     // hapus catatan
     function deleteNote(index) {
