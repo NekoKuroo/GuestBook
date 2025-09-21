@@ -1,141 +1,215 @@
-* {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, green 0%, #2575fc 100%);
-            color: #333;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-            margin: 20px 0;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #2575fc;
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2575fc;
-        }
-        
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, textarea:focus {
-            border-color: #2575fc;
-            outline: none;
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .char-count {
-            text-align: right;
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        button {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        #messages {
-            margin-top: 30px;
-        }
-        
-        .card {
-            background-color: #f9f9f9;
-            border-left: 5px solid #2575fc;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card h3 {
-            color: #2575fc;
-            margin-bottom: 10px;
-        }
-        
-        .card p {
-            color: #555;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-        
-        .card small {
-            color: #888;
-            font-size: 12px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
-        
-        .empty-state i {
-            font-size: 50px;
-            margin-bottom: 15px;
-            display: block;
-            color: #ccc;
-        }
-        
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-        }
+ /* Variabel CSS untuk tema konsisten */
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f9c74f;
+      --danger: #f94144;
+      --gray: #6c757d;
+      --border-radius: 12px;
+      --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    /* Reset dan gaya dasar */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #f5f7fa;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--secondary);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-top: 1rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      padding-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-top: 2.5rem;
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      border-radius: 3px;
+    }
+
+    /* Container utama */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Form styling */
+    #guestForm {
+      background: white;
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2rem;
+      transition: var(--transition);
+    }
+
+    #guestForm:hover {
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #e1e5eb;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    /* Daftar pesan styling */
+    #messages {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    #messages div {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    #messages div:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    #messages li {
+      margin-bottom: 0.5rem;
+    }
+
+    #messages strong {
+      color: var(--primary);
+      font-size: 1.2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    #messages p {
+      color: var(--gray);
+      margin-bottom: 1.2rem;
+    }
+
+    /* Tombol aksi */
+    .hapusBtn, .editBtn {
+      width: auto;
+      padding: 0.6rem 1.2rem;
+      margin-right: 0.8rem;
+      font-size: 0.9rem;
+    }
+
+    .hapusBtn {
+      background: linear-gradient(135deg, var(--danger), #d90429);
+    }
+
+    .editBtn {
+      background: linear-gradient(135deg, var(--warning), #f8961e);
+    }
+
+    /* Responsif untuk perangkat mobile */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      #guestForm {
+        padding: 1.5rem;
+      }
+      
+      .container {
+        padding: 10px;
+      }
+    }
+
+    /* Animasi untuk elemen baru */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #messages div {
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* Status edit mode */
+    .edit-mode #guestForm {
+      border: 2px solid var(--warning);
+      box-shadow: 0 0 0 3px rgba(249, 199, 79, 0.2);
+    }
