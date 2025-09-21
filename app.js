@@ -1,65 +1,90 @@
-const noteForm = document.getElementById('noteForm');
-    const notesList = document.getElementById('notesList');
-    let notes = []; // array penampung catatan
+const guestForm = document.getElementById('guestForm');
+const nameInput = document.getElementById('name');
+const messageInput = document.getElementById('message');
+const messagesList = document.getElementById('messages');
 
-    // render daftar catatan
-    function renderNotes() {
-      notesList.innerHTML = ''; // kosongkan dulu
-      notes.forEach((note, index) => {
-        const noteCard = document.createElement('div');
-        noteCard.className = 'note-card';
-        noteCard.innerHTML = `
-          <h3>${note.title}</h3>
-          <p>${note.content}</p>
-          <div class="note-actions">
-            <button class="edit" data-index="${index}">Edit</button>
-            <button class="delete" data-index="${index}">Hapus</button>
-          </div>
-        `;
-        notesList.appendChild(noteCard);
-      });
-    }
+let messages = JSON.parse(localStorage.getItem('messages')) || [];
+let editIndex = null;
 
-    // tambah catatan
-    noteForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const title = document.getElementById('noteTitle').value.trim();
-      const content = document.getElementById('noteContent').value.trim();
+function saveToLocal(){
+  localStorage.setItem('messages', JSON.stringify(messages));
+}
 
-      if (title && content) {
-        notes.push({ title, content });
-        renderNotes();
-        noteForm.reset();
-      }
-      
-    notesList.addEventListener('click', function (e) { 
-      if (e.target.classList.contains('delete')) {
-        const index = e.target.dataset.index;
-        deleteNote(index);;
-      }
-      if (e.target.classList.contains('edit')) {
-        const index = e.target.dataset.index;
-        editNote(index);
-      }
-    });  
-  });
+function tambahBuku(nama, pesan){
+  if(!nama || !pesan ) return;
+  messages.push({ nama, pesan });
+  saveToLocal();
+  render();
+}
 
-    // hapus catatan
-    function deleteNote(index) {
-      notes.splice(index, 1);
-      renderNotes();
-    }
+function editBuku(index,nama,pesan){
+  if(messages[index] && nama && pesan){
+    messages[index] = { nama, pesan };
+    saveToLocal();
+    render()
+  }
+}
 
-    // edit catatan
-    function editNote(index) {
-      const note = notes[index];
-      document.getElementById('noteTitle').value = note.title;
-      document.getElementById('noteContent').value = note.content;
+function hapusBuku(index){
+  if(messages[index]){
+    messages.splice(index,1);
+    saveToLocal();
+    render();
+  }
+}
 
-      // hapus catatan lama, nanti simpan ulang setelah submit
-      notes.splice(index, 1);
-      renderNotes();
-    }
+function render(){
+  messagesList.innerHTML = "";
 
-    // awal render (kosong)
-    renderNotes();
+  messages.forEach((msg, index) => {
+    const div = document.createElement('div');
+    const li = document.createElement('li');
+
+    const span = document.createElement('span');
+
+    const strong = document.createElement('strong');
+    strong.textContent = `Customer: ${msg.nama}`;
+
+    const paraf = document.createElement('p');
+    paraf.textContent = `Isi pesan: ${msg.pesan}`;
+
+    const hapusBtn = document.createElement('button');
+    hapusBtn.classList.add('hapusBtn');
+    hapusBtn.textContent = 'Hapus';
+    hapusBtn.addEventListener('click', () => hapusBuku(index));
+
+    const editBtn = document.createElement('button');
+    editBtn.classList.add('editBtn');
+    editBtn.textContent = 'Edit';
+    editBtn.addEventListener('click', () => {
+      nameInput.value = msg.nama;
+      messageInput.value = msg.pesan;
+      editIndex = index;
+    });
+
+    span.appendChild(strong);
+    span.appendChild(paraf);
+    li.appendChild(span);
+    div.appendChild(li);
+    div.appendChild(hapusBtn);
+    div.appendChild(editBtn);
+    messagesList.appendChild(div);
+  })
+}
+
+guestForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const nama = nameInput.value.trim();
+  const pesan = messageInput.value.trim(); 
+
+  if(editIndex === null) {
+    tambahBuku(nama,pesan);
+  } else {
+    editBuku(editIndex, nama, pesan);
+    editIndex = null;
+  }
+  
+  guestForm.reset();
+});
+render();
