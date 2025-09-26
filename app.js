@@ -1,83 +1,109 @@
-    const noteForm = document.getElementById('noteForm');
-    const notesList = document.getElementById('notesList');
-    let editNoteId = null ; // mode edit
-    
-    // render catatan dari server
-    async function fetchNotes() {
-      const res = await fetch ("/notes");
-      const data = await res.json();
-      renderNotes(data);
-    }
-    
-    // render daftar catatan
-    function renderNotes(notes) {
-      notesList.innerHTML = ''; // kosongkan dulu
-      
-      notes.forEach((note) => {
-      const noteCard = document.createElement("div");
-      noteCard.className = "note-card";
+const guestForm = document.getElementById('guestForm');
+const nameInput = document.getElementById('name');
+const messageInput = document.getElementById('message');
+const messagesList = document.getElementById('messages');
 
-      const title = document.createElement("h3");
-      title.textContent = note.title;
+let messages = JSON.parse(localStorage.getItem('messages')) || [];
+let editIndex = null;
 
-      const content = document.createElement("p");
-      content.textContent = note.content;
+// function saveToLocal(){
+//   localStorage.setItem('messages', JSON.stringify(messages));
+// }
 
-      const actions = document.createElement("div");
-      actions.className = "note-actions";
+// render pesan dari server
+async function fetchMessages() {
+  const res = await fetch("/messages");
+  const data = await res.json();
+  render(data);
+}
 
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "Edit";
-      editBtn.addEventListener("click", () => {
-        document.getElementById("noteTitle").value = note.title;
-        document.getElementById("noteContent").value = note.content;
-        editNoteId = note.id; // simpan id yang sedang di-edit
-      });
+// function tambahBuku(nama, pesan){
+//   if(!nama || !pesan ) return;
+//   messages.push({ nama, pesan });
+//   saveToLocal();
+//   render();
+// }
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Hapus";
-      deleteBtn.addEventListener("click", async () => {
-        await fetch(`/notes/${note.id}`, { method: "DELETE" });
-        fetchNotes();
-      });
+// function editBuku(index,nama,pesan){
+//   if(messages[index] && nama && pesan){
+//     messages[index] = { nama, pesan };
+//     saveToLocal();
+//     render()
+//   }
+// }
 
-      actions.appendChild(editBtn);
-      actions.appendChild(deleteBtn);
+// async function hapusBuku(index){
+//   await fetch(`/messages/${index}`, { method: "DELETE" });
+//   fetchMessages();
+// }
+guestForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-      noteCard.appendChild(title);
-      noteCard.appendChild(content);
-      noteCard.appendChild(actions);
+  const nama = nameInput.value.trim();
+  const pesan = messageInput.value.trim(); 
 
-      notesList.appendChild(noteCard);
+  if(editIndex === null) {
+    await fetch("/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify ({ nama, pesan }),
+    });
+  } else {
+    await fetch(`/messages/${editIndex}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json"},
+      body: JSON.stringify ({ nama, pesan }),
+    });
+    editIndex = null
+  }
+  
+  guestForm.reset();
+  fetchMessages();
+});
+
+async function hapusBuku(index){
+  await fetch(`/messages/${index}`, { method: "DELETE" });
+  fetchMessages();
+}
+
+function render(messages){
+  messagesList.innerHTML = "";
+
+  messages.forEach((msg, index) => {
+    const div = document.createElement('div');
+    const li = document.createElement('li');
+
+    const span = document.createElement('span');
+
+    const strong = document.createElement('strong');
+    strong.textContent = `Customer: ${msg.nama}`;
+
+    const paraf = document.createElement('p');
+    paraf.textContent = `Isi pesan: ${msg.pesan}`;
+
+    const hapusBtn = document.createElement('button');
+    hapusBtn.classList.add('hapusBtn');
+    hapusBtn.textContent = 'Hapus';
+    hapusBtn.addEventListener('click', () => hapusBuku(index));
+
+    const editBtn = document.createElement('button');
+    editBtn.classList.add('editBtn');
+    editBtn.textContent = 'Edit';
+    editBtn.addEventListener('click', () => {
+      nameInput.value = msg.nama;
+      messageInput.value = msg.pesan;
+      editIndex = index;
+    });
+
+    span.appendChild(strong);
+    span.appendChild(paraf);
+    li.appendChild(span);
+    div.appendChild(li);
+    div.appendChild(hapusBtn);
+    div.appendChild(editBtn);
+    messagesList.appendChild(div);
   });
-    }
+}
 
-    // tambah/edit catatan
-    noteForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const title = document.getElementById('noteTitle').value.trim();
-      const content = document.getElementById('noteContent').value.trim();
-
-      if (!title || !content) return;
-
-      if(editNoteId){
-        //mode edit
-        await fetch(`/notes/${editNoteId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json"},
-          body: JSON.stringify({ title, content }),
-        });
-        editNoteId = null;
-      } else {
-        // mode tambah
-        await fetch("/notes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json"},
-          body: JSON.stringify({ title, content }),
-        });
-      }
-      noteForm.reset();
-      fetchNotes(); 
-  });
-    // awal render (kosong)
-    fetchNotes();
+// pertama kali load
+fetchMessages();
