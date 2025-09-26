@@ -1,82 +1,77 @@
 const express = require("express");
-const path = require("path");
 const fs = require("fs");
+// const { load } = require("mime");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
 
-// file JSON untuk simpan data(simulasi localstorage)
-const DATA_FILE = path.join(__dirname, "notes.json");
-
+const DATA_FILE = path.join(__dirname, "messages.json");
 // Cek apakah file json sudah dibuat, jika belum maka akan dibuatkan otomatis
 if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, "[]", "utf-8");
-    console.log("notes.json dibuat otomatis");
+    console.log("messages.json dibuat otomatis");
 }
-
 // middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-// fungsi helper baca/tulis file
-function readNotes(){
-    try {
-        const data = fs.readFileSync(DATA_FILE, "utf-8");
-        return JSON.parse(data);
-    } catch(err){
-        return []; //kalau file masih kosong/belum ada
-    }
+
+
+// baca data dari file
+function loadMessages() {
+    if (!fs.existsSync(DATA_FILE)) return [];
+    return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
 }
 
-function writeNotes(notes){
-    fs.writeFileSync(DATA_FILE, JSON.stringify(notes, null, 2));
+// simpan data ke file
+function saveMessages(messages) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(messages, null, 2));
 }
 
-// GET semua catatan
-app.get("/notes", (req, res) => {
-    const notes = readNotes();
-    res.json(notes);
+// GET semua pesan
+app.get("/messages", (req, res) => {
+    res.json(loadMessages());
 });
 
-// POST tambah catatan
-app.post ("/notes", (req, res) => {
-    const { title, content } = req.body;
-    if (!title || !content) {
-        return res.status(400).json({ error: "Title dan content wajib diisi"});
+// POST tambah pesan
+app.post("/messages", (req, res) => {
+    const { nama, pesan } = req.body;
+    if(!nama || !pesan) return res.status(400).json({ error: "Nama & pesan wajib diisi" });
+
+    const messages = loadMessages();
+    messages.push({ nama, pesan });
+    saveMessages(messages);
+    res.json({ success: true });
+});
+
+// PUT edit pesan
+app.put("/messages/:index", (req, res) => {
+    const { index } = req.params;
+    const { nama, pesan } = req.body;
+    const messages = loadMessages();
+
+    if(!messages[index]) return res.status(404).json({ error: "Pesan tidak ditemukan" });
+    
+    messages[index] = { nama, pesan };
+    saveMessages(messages);
+    res.json({ success: true });
+});
+
+// DELETE hapus pesan
+app.delete("/messages/:index", (req, res) => {
+    const { index } = req.params;
+    const messages = loadMessages();
+
+    if (!messages[index]) {
+        return res.status(404).json({ error : "Pesan tidak ditemukan" });
     }
-    const notes = readNotes();
-    const newNote = { id: Date.now(), title, content };
-    notes.push(newNote);
-    writeNotes(notes);
-    res.status(201).json(newNote);
+    
+    messages.splice(index, 1);
+    saveMessages(messages);
+    res.json({ success: true });
 });
 
-// PUT edit catatan
-app.put("/notes/:id", (req, res ) => {
-    const { id } = req.params;
-    const { title, content } = req.body;
-    const notes = readNotes();
-    const noteIndex = notes.findIndex((n) => n.id == id);
-
-    if (noteIndex === -1) {
-        return res.status(404).json({ error: "Note tidak ditemukan " });
-    }
-
-    notes[noteIndex] = { ...notes[noteIndex], title, content };
-    writeNotes(notes);
-    res.json(notes[noteIndex]);
-});
-
-// DELETE hapus catatan
-app.delete("/notes/:id", (req, res) => {
-    const { id } = req.params;
-    let notes = readNotes();
-    notes = notes.filter((n) => n.id != id);
-    writeNotes(notes);
-    res.json({ message: "Note dihapus" });
-});
-
-// jalankan server
 app.listen(PORT, () => {
-    console.log(`Server jalan di http://localhost:${PORT}`);
-});
+    console.log(`Server berjalan di http://localhost:${PORT}`);
+})
